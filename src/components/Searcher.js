@@ -8,8 +8,9 @@ import {
 } from 'react-native';
 const deviceScreen = Dimensions.get('window');
 
-const SideMenu = require('react-native-side-menu');
-
+// const SideMenu = require('react-native-side-menu');
+import SideMenu from './SideMenu'
+import NewIngredientList from './NewIngredientList'
 
 export default React.createClass({
   getInitialState: function() {
@@ -20,18 +21,19 @@ export default React.createClass({
 
   render() {
     const menu = (
-      <View style={styles.menu}>
-        <Text>Hola</Text>
-        <Text>Adios</Text>
-        <Text>Hasta luego</Text>
-      </View>
+      <NewIngredientList
+        ingredientType='spirits'
+        ingredientList={this.props.ingredients.spirits}
+        {...this.props}
+      />
     )
 
     return (
       <SideMenu
         menu={menu}
-        openMenuOffset={deviceScreen.width / 3}
-
+        maxMenuWidth={deviceScreen.width / 3}
+        bounceBackOnOverdraw={false}
+        hiddenMenuOffset={10}
       >
         <View style={styles.container}>
           <TextInput
@@ -56,6 +58,7 @@ export default React.createClass({
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     backgroundColor: 'white'
   },
 

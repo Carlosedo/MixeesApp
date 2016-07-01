@@ -9,15 +9,24 @@ import {
 
 
 export default React.createClass({
+  _press_on_ingredient(ingredient) {
+    let i = this.props.selected_ingredients.map((e) => {return e.id}).indexOf(ingredient.id)
+
+    if (i < 0) {
+      this.props.addIngredient(ingredient, this.props.ingredientType)
+    } else {
+      this.props.removeIngredient(i, ingredient.id, this.props.ingredientType)
+    }
+  },
+
   _render_ingredient_row(rowData) {
     return (
       <TouchableNativeFeedback
         key={rowData.id}
         background={TouchableNativeFeedback.SelectableBackground()}
-        onPress={() => this.props.addIngredient(rowData, this.props.ingredientType)}
-        disabled={rowData.disabled}
+        onPress={() => this._press_on_ingredient(rowData)}
       >
-        <View style={[styles.ingredientRow, rowData.disabled && styles.selected]}>
+        <View style={[styles.ingredientRow, rowData.selected && styles.selected]}>
           <Text>
             {rowData.ingredientName}
           </Text>

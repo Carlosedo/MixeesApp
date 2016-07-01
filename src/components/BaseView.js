@@ -12,6 +12,7 @@ import { bindActionCreators } from 'redux'
 
 import TabNavigator from 'react-native-tab-navigator';
 import Searcher from './Searcher'
+import Liker from './Liker'
 import Mixer from './Mixer'
 import ListOfCocktails from './ListOfCocktails'
 import * as actionCreators from './../actions/actionCreators'
@@ -63,7 +64,18 @@ const BaseView = React.createClass({
               renderSelectedIcon={() => <IconFont name="star" size={24} color="#FFF"/>}
               onPress={() => this.setState({ selectedTab: 'favorites' })}
             >
-              <ListOfCocktails/>
+              <ListOfCocktails navigator={this.props.navigator} />
+            </TabNavigator.Item>
+            <TabNavigator.Item
+              selected={this.state.selectedTab === 'liker'}
+              title="Liker"
+              titleStyle={styles.tabTitle}
+              selectedTitleStyle={styles.tabTitleSelected}
+              renderIcon={() => <IconFont name="star-border" size={24} color="#000"/>}
+              renderSelectedIcon={() => <IconFont name="star" size={24} color="#FFF"/>}
+              onPress={() => this.setState({ selectedTab: 'liker' })}
+            >
+              <Liker/>
             </TabNavigator.Item>
           </TabNavigator>
         </View>

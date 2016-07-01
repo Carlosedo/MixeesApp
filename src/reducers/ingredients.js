@@ -29,7 +29,7 @@ export function ingredients(state = [], action) {
       new_state = {...state}
       new_state[action.ingredientType].map((ing) => {
         if (ing.id == action.ingredient.id) {
-          ing['disabled'] = true
+          ing['selected'] = true
           return ing
         } else {
           return ing
@@ -40,7 +40,7 @@ export function ingredients(state = [], action) {
       new_state = {...state}
       new_state[action.ingredientType].map((ing) => {
         if (ing.id == action.ingredient.id) {
-          ing['disabled'] = false
+          ing['selected'] = false
           return ing
         } else {
           return ing

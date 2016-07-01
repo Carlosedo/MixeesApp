@@ -10,10 +10,9 @@ import {
 
 let IconFont = require('react-native-vector-icons/MaterialIcons')
 
-//style={ [styles.defaultText, styles.orange, styles.centered] }
+
 export default React.createClass({
   render() {
-    // <Text style={styles.subtitle}>Welcome to</Text>
     return (
       <View style={styles.tableView}>
         <View style={styles.title}>
@@ -106,6 +105,7 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 55,
     fontWeight: 'bold',
+    fontFamily: 'Museo',
     color: '#08FE66',
     textAlign: 'center',
   },
