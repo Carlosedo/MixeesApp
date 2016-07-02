@@ -102,7 +102,7 @@ class SideMenu extends React.Component {
   handlePanResponderMove(e: Object, gestureState: Object) {
     let newLeft = this.prevLeft + gestureState.dx + this.fingerWidth;
 
-    if (!this.props.bounceBackOnOverdraw && Math.abs(newLeft) > this.props.maxMenuWidth) {
+    if (!this.props.bounceBackOnOverdraw && newLeft > this.props.maxMenuWidth) {
       newLeft = this.menuPositionMultiplier() * this.props.maxMenuWidth + this.fingerWidth;
     }
 
@@ -130,8 +130,6 @@ class SideMenu extends React.Component {
    * @return {Void}
    */
   handlePanResponderEnd(e: Object, gestureState: Object) {
-    console.log('handlePanResponderEnd')
-
     if (this._hoveredImg) {
       this.animateFromSelect(this._imageAnimations[this._hoveredImg], this.release )
     } else {
@@ -152,9 +150,7 @@ class SideMenu extends React.Component {
   moveLeft(offset) {
     const newOffset = this.menuPositionMultiplier() * offset;
 
-    this.props
-      .animationFunction(this.state.left, newOffset)
-      .start();
+    this.state.left.setValue(newOffset);
 
     this.prevLeft = newOffset;
   }
@@ -164,8 +160,6 @@ class SideMenu extends React.Component {
    * @return {Void}
    */
   closeMenu() {
-    console.log('closeMenu')
-
     const { hiddenMenuOffset, } = this.props;
     this.moveLeft(hiddenMenuOffset);
 
@@ -174,8 +168,6 @@ class SideMenu extends React.Component {
   }
 
   release() {
-    console.log('release')
-
     if (this._hoveredImg) {
       this.setState({
         selected: this._hoveredImg
