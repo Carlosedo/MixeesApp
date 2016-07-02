@@ -19,7 +19,8 @@ var images = [
 var Liker = React.createClass({
   getInitialState: function() {
     return {
-      selected: ''
+      selected: '',
+      hoveredImg: '',
     };
   },
 
@@ -43,6 +44,7 @@ var Liker = React.createClass({
       onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
       onPanResponderMove: (evt, gestureState) => {
         var hoveredImg = this.getHoveredImg(Math.ceil(gestureState.moveY) - 300);
+
         this.setState({
           hoveredImg: Math.ceil(gestureState.moveY) - 300
         })

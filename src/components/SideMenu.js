@@ -150,7 +150,9 @@ class SideMenu extends React.Component {
   moveLeft(offset) {
     const newOffset = this.menuPositionMultiplier() * offset;
 
-    this.state.left.setValue(newOffset);
+    this.props
+      .animationFunction(this.state.left, newOffset)
+      .start();
 
     this.prevLeft = newOffset;
   }
