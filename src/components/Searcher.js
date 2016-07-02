@@ -11,6 +11,7 @@ const deviceScreen = Dimensions.get('window');
 // const SideMenu = require('react-native-side-menu');
 import SideMenu from './SideMenu'
 import NewIngredientList from './NewIngredientList'
+import Liker from './Liker'
 
 export default React.createClass({
   getInitialState: function() {
@@ -21,32 +22,47 @@ export default React.createClass({
 
   render() {
     const menu = (
-      <NewIngredientList
-        ingredientType='spirits'
-        ingredientList={this.props.ingredients.spirits}
-        {...this.props}
+      <Liker
       />
     )
+
+    // return (
+    //   <SideMenu
+    //     menu={menu}
+    //     maxMenuWidth={deviceScreen.width / 3}
+    //     bounceBackOnOverdraw={false}
+    //   >
+    //     <View style={styles.container}>
+    //       <TextInput
+    //         style={styles.searchInput}
+    //         placeholder='Type your search here!'
+    //         selectionColor='#08FE66'
+    //         onChangeText={(text) => this.setState({text})}
+    //         value={this.state.text}
+    //         autoFocus={true}
+    //       />
+
+    //       <View>
+    //         <Text>
+    //           {this.state.text}
+    //         </Text>
+    //       </View>
+    //     </View>
+    //   </SideMenu>
+    // )
 
     return (
       <SideMenu
         menu={menu}
-        maxMenuWidth={deviceScreen.width / 3}
+        maxMenuWidth={deviceScreen.width / 6}
         bounceBackOnOverdraw={false}
-        hiddenMenuOffset={10}
+        hiddenMenuOffset={-60}
       >
         <View style={styles.container}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder='Type your search here!'
-            selectionColor='#08FE66'
-            onChangeText={(text) => this.setState({text})}
-            value={this.state.text}
-            autoFocus={true}
-          />
 
           <View>
             <Text>
+              holarr
               {this.state.text}
             </Text>
           </View>

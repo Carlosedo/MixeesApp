@@ -1,13 +1,23 @@
 const styles = require('./../styles/SideMenu');
 const ReactNative = require('react-native');
 const React = require('react');
-const { Dimensions, Animated, } = ReactNative;
-const deviceScreen = Dimensions.get('window');
-
 const {
+  Animated,
+  Dimensions,
+  Image,
   PanResponder,
+  Text,
   View,
 } = ReactNative;
+const deviceScreen = Dimensions.get('window');
+
+
+var images = [
+  {id: 'like', img: require('./../imgs/liker/like.png')},
+  {id: 'love', img: require('./../imgs/liker/love.png')},
+  {id: 'haha', img: require('./../imgs/liker/smile.png')},
+  {id: 'yay', img: require('./../imgs/liker/happy.jpg')},
+]
 
 
 class SideMenu extends React.Component {
@@ -20,14 +30,32 @@ class SideMenu extends React.Component {
      * @type {Number}
      */
     this.prevLeft = 0;
-    this.fingerWidth = 100;
+    this.fingerWidth = 0;
 
     const initialMenuPositionMultiplier = props.menuPosition === 'right' ? -1 : 1
+
+
+
+    this._imgLayouts = {};
+    this._imageAnimations = {};
+    this._hoveredImg = '';
+
+    this._scaleAnimation = new Animated.Value(0);
+
+    images.forEach((img) => {
+      this._imageAnimations[img.id] = {
+        scale: new Animated.Value(1)
+      };
+    })
+
+
 
     this.state = {
       width: deviceScreen.width,
       height: deviceScreen.height,
-      left: new Animated.Value(props.hiddenMenuOffset),
+      left: new Animated.Value(this.props.hiddenMenuOffset),
+      selected: '',
+      hoveredImg: '',
     };
   }
 
@@ -37,25 +65,13 @@ class SideMenu extends React.Component {
    */
   componentWillMount() {
     this.responder = PanResponder.create({
-      onStartShouldSetResponderCapture: this.props.onStartShouldSetResponderCapture.bind(this),
-      onMoveShouldSetPanResponder: this.handleMoveShouldSetPanResponder.bind(this),
+      onStartShouldSetPanResponder: (evt, gestureState) => true,
+      onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
+      onMoveShouldSetPanResponder: (evt, gestureState) => true,
+      onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
       onPanResponderMove: this.handlePanResponderMove.bind(this),
       onPanResponderRelease: this.handlePanResponderEnd.bind(this),
     });
-  }
-
-  /**
-   * Determines if gestures are enabled, based off of disableGestures prop
-   * @return {Boolean}
-   */
-  gesturesAreEnabled() {
-    let { disableGestures, } = this.props;
-
-    if (typeof disableGestures === 'function') {
-      return !disableGestures();
-    }
-
-    return !disableGestures;
   }
 
   /**
@@ -63,21 +79,18 @@ class SideMenu extends React.Component {
    * @return {Boolean}
    */
   handleMoveShouldSetPanResponder(e: Object, gestureState: Object) {
-    if (this.gesturesAreEnabled()) {
-      const x = Math.round(Math.abs(gestureState.dx));
-      const y = Math.round(Math.abs(gestureState.dy));
+    // const x = Math.round(Math.abs(gestureState.dx));
+    // const y = Math.round(Math.abs(gestureState.dy));
 
-      const touchMoved = x > this.props.toleranceX && y < this.props.toleranceY;
+    // const touchMoved = x > this.props.toleranceX && y < this.props.toleranceY;
 
-      const withinEdgeHitWidth = this.props.menuPosition === 'right' ?
-        gestureState.moveX > (deviceScreen.width - this.props.edgeHitWidth) :
-        gestureState.moveX < this.props.edgeHitWidth;
+    // const withinEdgeHitWidth = this.props.menuPosition === 'right' ?
+    //   gestureState.moveX > (deviceScreen.width - this.props.edgeHitWidth) :
+    //   gestureState.moveX < this.props.edgeHitWidth;
 
-      const swipingToOpen = this.menuPositionMultiplier() * gestureState.dx > 0;
-      return withinEdgeHitWidth && touchMoved && swipingToOpen;
-    }
-
-    return false;
+    // const swipingToOpen = this.menuPositionMultiplier() * gestureState.dx > 0;
+    // return withinEdgeHitWidth && touchMoved && swipingToOpen;
+    return true
   }
 
   /**
@@ -87,15 +100,27 @@ class SideMenu extends React.Component {
    * @return {Void}
    */
   handlePanResponderMove(e: Object, gestureState: Object) {
-    if (this.state.left.__getValue() * this.menuPositionMultiplier() >= 0) {
-      let newLeft = this.prevLeft + gestureState.dx + this.fingerWidth;
+    let newLeft = this.prevLeft + gestureState.dx + this.fingerWidth;
 
-      if (!this.props.bounceBackOnOverdraw && Math.abs(newLeft) > this.props.maxMenuWidth) {
-        newLeft = this.menuPositionMultiplier() * this.props.maxMenuWidth + this.fingerWidth;
-      }
-
-      this.state.left.setValue(newLeft);
+    if (!this.props.bounceBackOnOverdraw && Math.abs(newLeft) > this.props.maxMenuWidth) {
+      newLeft = this.menuPositionMultiplier() * this.props.maxMenuWidth + this.fingerWidth;
     }
+
+    this.state.left.setValue(newLeft);
+
+
+
+    var hoveredImg = this.getHoveredImg(Math.ceil(gestureState.moveY) - 300);
+    this.setState({
+      hoveredImg: Math.ceil(gestureState.moveY) - 300
+    })
+    if (hoveredImg && this._hoveredImg !== hoveredImg) {
+      this.animateSelected(this._imageAnimations[hoveredImg])
+    }
+    if (this._hoveredImg !== hoveredImg && this._hoveredImg) {
+      this.animateFromSelect(this._imageAnimations[this._hoveredImg]);
+    }
+    this._hoveredImg = hoveredImg;
   }
 
   /**
@@ -105,8 +130,13 @@ class SideMenu extends React.Component {
    * @return {Void}
    */
   handlePanResponderEnd(e: Object, gestureState: Object) {
-    const offsetLeft = this.menuPositionMultiplier() *
-      (this.state.left.__getValue() + gestureState.dx);
+    console.log('handlePanResponderEnd')
+
+    if (this._hoveredImg) {
+      this.animateFromSelect(this._imageAnimations[this._hoveredImg], this.release )
+    } else {
+      this.release();
+    }
 
     this.closeMenu();
   }
@@ -134,11 +164,71 @@ class SideMenu extends React.Component {
    * @return {Void}
    */
   closeMenu() {
+    console.log('closeMenu')
+
     const { hiddenMenuOffset, } = this.props;
     this.moveLeft(hiddenMenuOffset);
 
     this.forceUpdate();
     this.props.onChange();
+  }
+
+  release() {
+    console.log('release')
+
+    if (this._hoveredImg) {
+      this.setState({
+        selected: this._hoveredImg
+      })
+    }
+    this._hoveredImg = '';
+  }
+
+  animateSelected(imgAnimations) {
+    Animated.timing(imgAnimations.scale, {
+      duration: 150,
+      toValue: 1.8
+    }).start();
+  }
+
+  animateFromSelect(imgAnimations, cb) {
+    Animated.timing(imgAnimations.scale, {
+      duration: 50,
+      toValue: 1
+    }).start(cb);
+  }
+
+  getHoveredImg(y) {
+    return Object.keys(this._imgLayouts).find((key) => {
+      return y >= this._imgLayouts[key].bottom && y <= this._imgLayouts[key].top;
+    })
+  }
+
+  handleLayoutPosition(img, position) {
+    this._imgLayouts[img] = {
+      top: position.nativeEvent.layout.y,
+      bottom: position.nativeEvent.layout.y - position.nativeEvent.layout.height
+    }
+  }
+
+  getImages() {
+    return images.map((img) => {
+      return (
+        <Animated.Image
+          onLayout={this.handleLayoutPosition.bind(this, img.id)}
+          key={img.id}
+          source={img.img}
+          style={[
+              styles.img,
+              {
+                transform: [
+                  {scale: this._imageAnimations[img.id].scale}
+                ]
+              }
+          ]}
+        />
+      )
+    })
   }
 
   /**
@@ -148,16 +238,22 @@ class SideMenu extends React.Component {
   getContentView() {
     const { width, height, } = this.state;
     const ref = (sideMenu) => this.sideMenu = sideMenu;
+    // const style = [
+    //   styles.frontView,
+    //   { width, height, },
+    //   this.props.animationStyle(this.state.left),
+    // ];
+
     const style = [
       styles.frontView,
       { width, height, },
-      this.props.animationStyle(this.state.left),
     ];
 
+
     return (
-      <Animated.View style={style} ref={ref} {...this.responder.panHandlers}>
+      <View style={style} ref={ref}>
         {this.props.children}
-      </Animated.View>
+      </View>
     );
   }
 
@@ -173,14 +269,37 @@ class SideMenu extends React.Component {
   render() {
     const boundryStyle = this.props.menuPosition == 'right' ?
       {left: deviceScreen.width - this.props.maxMenuWidth} :
-      {right: deviceScreen.width - this.props.maxMenuWidth} ;
+      {right: deviceScreen.width - this.props.maxMenuWidth}
 
-    const menu = <View style={[styles.menu, boundryStyle]}>{this.props.menu}</View>;
+    const style = [
+      styles.menu,
+      this.props.animationStyle(this.state.left)
+    ]
+
+    const menu =
+      <Animated.View
+        style={style}
+        {...this.responder.panHandlers}>
+          <View
+            style={styles.center}
+          >
+            <Text>Like</Text>
+            <Text>You selected: {this.state.selected}</Text>
+            <Text>You hovered: {this.state.hoveredImg}</Text>
+            <Animated.View
+              style={styles.likeContainer}
+            >
+              <View style={styles.imgContainer}>
+                {this.getImages()}
+              </View>
+            </Animated.View>
+          </View>
+      </Animated.View>;
 
     return (
       <View style={styles.container} onLayout={this.onLayoutChange.bind(this)}>
-        {menu}
         {this.getContentView()}
+        {menu}
       </View>
     );
   }

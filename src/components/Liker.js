@@ -5,7 +5,6 @@ import {
   Image,
   View,
   PanResponder,
-  TouchableOpacity,
   Animated
 } from 'react-native';
 
@@ -124,31 +123,26 @@ var Liker = React.createClass({
 
   render: function() {
     return (
-      <View style={styles.container}>
-        <View
-          style={styles.center}
-          {...this._panResponder.panHandlers}
+      <View
+        style={styles.center}
+        {...this._panResponder.panHandlers}
+      >
+        <Text>Like</Text>
+        <Text>You selected: {this.state.selected}</Text>
+        <Text>You hovered: {this.state.hoveredImg}</Text>
+        <Animated.View
+          style={styles.likeContainer}
         >
-          <Text>Like</Text>
-          <Text>You selected: {this.state.selected}</Text>
-          <Text>You hovered: {this.state.hoveredImg}</Text>
-          <Animated.View
-            style={styles.likeContainer}
-          >
-            <View style={styles.imgContainer}>
-              {this.getImages()}
-            </View>
-          </Animated.View>
-        </View>
+          <View style={styles.imgContainer}>
+            {this.getImages()}
+          </View>
+        </Animated.View>
       </View>
     );
   }
 });
 
 var styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   center: {
     position: 'absolute',
     left: 50,

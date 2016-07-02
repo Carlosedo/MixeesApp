@@ -139,6 +139,8 @@ export default React.createClass({
 const styles = StyleSheet.create({
   ingredientRow: {
     height: 40,
+    width: 80,
+    marginRight: 10,
     borderColor: '#999',
     borderWidth: 2,
   },

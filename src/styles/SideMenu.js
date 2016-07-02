@@ -23,7 +23,7 @@ module.exports = StyleSheet.create({
   frontView: {
     flex: 1,
     position: 'absolute',
-    left: 0,
+    left: 50,
     top: 0,
     backgroundColor: 'transparent',
   },
@@ -31,4 +31,29 @@ module.exports = StyleSheet.create({
     ...absoluteStretch,
     backgroundColor: 'transparent',
   },
+  center: {
+    position: 'absolute',
+    left: 50,
+    top: 300
+  },
+  likeContainer: {
+    position: 'absolute',
+    left: -10,
+    top: -30,
+    padding: 5,
+    flex: 1,
+    backgroundColor: '#FFF',
+    borderColor: 'transparent',
+    borderWidth: 0,
+    borderRadius: 20,
+  },
+  imgContainer: {
+    backgroundColor: 'transparent',
+    flexDirection: 'column',
+  },
+  img: {
+    margin: 5,
+    width: 30,
+    height: 30,
+  }
 });
