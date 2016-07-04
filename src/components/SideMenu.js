@@ -36,13 +36,13 @@ class SideMenu extends React.Component {
 
 
 
-    this._imgLayouts = {};
+    this._ingLayouts = {};
     this._imageAnimations = {};
-    this._hoveredImg = '';
+    this._hoveredIngredient = '';
 
     this._scaleAnimation = new Animated.Value(0);
 
-    images.forEach((img) => {
+    this.props.ingredients.spirits.forEach((img) => {
       this._imageAnimations[img.id] = {
         scale: new Animated.Value(1)
       };
@@ -55,7 +55,7 @@ class SideMenu extends React.Component {
       height: deviceScreen.height,
       left: new Animated.Value(this.props.hiddenMenuOffset),
       selected: '',
-      hoveredImg: '',
+      hoveredIngredient: '',
     };
   }
 
@@ -106,21 +106,21 @@ class SideMenu extends React.Component {
       newLeft = this.menuPositionMultiplier() * this.props.maxMenuWidth + this.fingerWidth;
     }
 
-    this.state.left.setValue(newLeft);
+    this.state.left.setValue(newLeft)
 
 
 
-    var hoveredImg = this.getHoveredImg(Math.ceil(gestureState.moveY) - 300);
+    var hoveredIngredient = this.getHoveredIngredient(Math.ceil(gestureState.moveY) - 30);
     this.setState({
-      hoveredImg: Math.ceil(gestureState.moveY) - 300
+      hoveredIngredient: Math.ceil(gestureState.moveY) - 30
     })
-    if (hoveredImg && this._hoveredImg !== hoveredImg) {
-      this.animateSelected(this._imageAnimations[hoveredImg])
+    if (hoveredIngredient && this._hoveredIngredient !== hoveredIngredient) {
+      this.animateSelected(this._imageAnimations[hoveredIngredient])
     }
-    if (this._hoveredImg !== hoveredImg && this._hoveredImg) {
-      this.animateFromSelect(this._imageAnimations[this._hoveredImg]);
+    if (this._hoveredIngredient !== hoveredIngredient && this._hoveredIngredient) {
+      this.animateFromSelect(this._imageAnimations[this._hoveredIngredient])
     }
-    this._hoveredImg = hoveredImg;
+    this._hoveredIngredient = hoveredIngredient
   }
 
   /**
@@ -130,13 +130,13 @@ class SideMenu extends React.Component {
    * @return {Void}
    */
   handlePanResponderEnd(e: Object, gestureState: Object) {
-    if (this._hoveredImg) {
-      this.animateFromSelect(this._imageAnimations[this._hoveredImg], this.release )
+    if (this._hoveredIngredient) {
+      this.animateFromSelect(this._imageAnimations[this._hoveredIngredient], () => this.release() )
     } else {
-      this.release();
+      this.release()
     }
 
-    this.closeMenu();
+    this.closeMenu()
   }
 
   /**
@@ -170,12 +170,23 @@ class SideMenu extends React.Component {
   }
 
   release() {
-    if (this._hoveredImg) {
+    if (this._hoveredIngredient) {
       this.setState({
-        selected: this._hoveredImg
+        selected: this._hoveredIngredient
       })
+      this._release_on_hovered_ingredient(this.props.ingredients.spirits[this._hoveredIngredient - 1])
     }
-    this._hoveredImg = '';
+    this._hoveredIngredient = '';
+  }
+
+  _release_on_hovered_ingredient(ingredient) {
+    let i = this.props.selected_ingredients.map((e) => {return e.id}).indexOf(ingredient.id)
+
+    if (i < 0) {
+      this.props.addIngredient(ingredient, 'spirits')
+    } else {
+      this.props.removeIngredient(i, ingredient.id, 'spirits')
+    }
   }
 
   animateSelected(imgAnimations) {
@@ -192,35 +203,36 @@ class SideMenu extends React.Component {
     }).start(cb);
   }
 
-  getHoveredImg(y) {
-    return Object.keys(this._imgLayouts).find((key) => {
-      return y >= this._imgLayouts[key].bottom && y <= this._imgLayouts[key].top;
+  getHoveredIngredient(y) {
+    return Object.keys(this._ingLayouts).find((key) => {
+      return y >= this._ingLayouts[key].bottom && y <= this._ingLayouts[key].top;
     })
   }
 
-  handleLayoutPosition(img, position) {
-    this._imgLayouts[img] = {
+  handleLayoutPosition(ing, position) {
+    this._ingLayouts[ing] = {
       top: position.nativeEvent.layout.y,
       bottom: position.nativeEvent.layout.y - position.nativeEvent.layout.height
     }
   }
 
-  getImages() {
-    return images.map((img) => {
+  getIngredients() {
+    return this.props.ingredients.spirits.map((ing) => {
       return (
-        <Animated.Image
-          onLayout={this.handleLayoutPosition.bind(this, img.id)}
-          key={img.id}
-          source={img.img}
+        <Animated.Text
+          onLayout={this.handleLayoutPosition.bind(this, ing.id)}
+          key={ing.id}
           style={[
-              styles.img,
+              styles.ing,
               {
                 transform: [
-                  {scale: this._imageAnimations[img.id].scale}
+                  {scale: this._imageAnimations[ing.id].scale}
                 ]
               }
           ]}
-        />
+        >
+          {ing.ingredientName}
+        </Animated.Text>
       )
     })
   }
@@ -277,14 +289,11 @@ class SideMenu extends React.Component {
           <View
             style={styles.center}
           >
-            <Text>Like</Text>
-            <Text>You selected: {this.state.selected}</Text>
-            <Text>You hovered: {this.state.hoveredImg}</Text>
             <Animated.View
               style={styles.likeContainer}
             >
               <View style={styles.imgContainer}>
-                {this.getImages()}
+                {this.getIngredients()}
               </View>
             </Animated.View>
           </View>

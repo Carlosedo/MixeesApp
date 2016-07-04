@@ -12,6 +12,7 @@ const deviceScreen = Dimensions.get('window');
 import SideMenu from './SideMenu'
 import NewIngredientList from './NewIngredientList'
 import Liker from './Liker'
+import MixerGlass from './MixerGlass'
 
 export default React.createClass({
   getInitialState: function() {
@@ -56,15 +57,13 @@ export default React.createClass({
         menu={menu}
         maxMenuWidth={deviceScreen.width / 6}
         bounceBackOnOverdraw={false}
-        hiddenMenuOffset={-60}
+        hiddenMenuOffset={-70}
+        {...this.props}
       >
         <View style={styles.container}>
 
-          <View>
-            <Text>
-              holarr
-              {this.state.text}
-            </Text>
+          <View style={styles.mixer}>
+            <MixerGlass {...this.props} />
           </View>
         </View>
       </SideMenu>
@@ -78,8 +77,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'white'
   },
 
-  menu: {
-    backgroundColor: 'blue'
+  mixer: {
+    marginTop: 70,
+    alignItems: 'center',
   },
 
   searchInput: {
